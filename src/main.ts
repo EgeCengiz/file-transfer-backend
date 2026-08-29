@@ -8,8 +8,18 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bodyParser: true });
   const configService = app.get(ConfigService);
 
+  const defaultOrigins = [
+    'https://file.optimalajans.com',
+    'http://file.optimalajans.com',
+    'http://localhost:5173',
+  ];
+  const configuredOrigins = (configService.get<string>('CORS_ORIGIN') ?? '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
   app.enableCors({
-    origin: configService.get<string>('CORS_ORIGIN') ?? '*',
+    origin: configuredOrigins.length > 0 ? configuredOrigins : defaultOrigins,
     credentials: true,
   });
 
