@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   Delete,
   Get,
@@ -41,6 +42,9 @@ export class FilesController {
     @UploadedFile() file: Express.Multer.File,
     @Query('folderId') folderId: string | undefined,
   ) {
+    if (!file) {
+      throw new BadRequestException('Dosya alinamadi');
+    }
     const parsedFolderId = folderId ? parseInt(folderId, 10) : null;
     return this.filesService.create(parsedFolderId, file);
   }

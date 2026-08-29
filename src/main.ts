@@ -3,8 +3,22 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Server } from 'http';
 import { AppModule } from './app.module';
+import { mountFrontend } from './common/utils/frontend-static';
+
+type PassengerGlobal = {
+  configure: (options: { autoInstall: boolean }) => void;
+};
+
+function getPassenger(): PassengerGlobal | undefined {
+  return (globalThis as { PhusionPassenger?: PassengerGlobal }).PhusionPassenger;
+}
 
 async function bootstrap() {
+  const passenger = getPassenger();
+  if (passenger) {
+    passenger.configure({ autoInstall: false });
+  }
+
   const app = await NestFactory.create(AppModule, { bodyParser: true });
   const configService = app.get(ConfigService);
 
@@ -60,17 +74,21 @@ async function bootstrap() {
     }),
   );
 
+  // Nest route'larindan once: asset + SPA fallback (refresh /login index.html)
+  const frontendDir = mountFrontend(app);
+
   const port = configService.get<number>('PORT') ?? 3000;
+  const listenTarget = passenger ? 'passenger' : port;
+  await app.listen(listenTarget);
 
-  await app.listen(port);
-
-  // Buyuk dosya yuklemelerinde baglanti erken kesilmesin
   const server = app.getHttpServer() as Server;
   server.setTimeout(0);
   server.keepAliveTimeout = 0;
   server.headersTimeout = 0;
 
-  console.log(`File Transfer API http://localhost:${port} adresinde calisiyor`);
+  const where = passenger ? 'Passenger' : `http://localhost:${port}`;
+  const spa = frontendDir ? ` | SPA ${frontendDir}` : '';
+  console.log(`File Transfer API ${where} adresinde calisiyor${spa}`);
 }
 
 void bootstrap();

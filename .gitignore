@@ -49,6 +49,9 @@ lerna-debug.log*
 # yuklenen dosyalar
 /storage
 
+# Vite build kopyasi (npm run copy:frontend)
+/public
+
 # Runtime data
 pids
 *.pid
