@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { LogsService } from '../logs/logs.service';
+import { ActivityService } from '../activity/activity.service';
 import { LogAction } from '../common/enums/log-action.enum';
 
 @Injectable()
@@ -9,7 +9,7 @@ export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    private readonly logsService: LogsService,
+    private readonly activityService: ActivityService,
   ) {}
 
   async login(password: string) {
@@ -23,7 +23,7 @@ export class AuthService {
       authenticated: true,
     });
 
-    await this.logsService.record({ action: LogAction.LOGIN });
+    await this.activityService.record({ action: LogAction.LOGIN });
 
     return { accessToken };
   }

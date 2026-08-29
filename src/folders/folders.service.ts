@@ -4,7 +4,7 @@ import { In, IsNull, Repository } from 'typeorm';
 import * as fs from 'fs';
 import { Folder } from '../entities/folder.entity';
 import { FileEntity } from '../entities/file.entity';
-import { LogsService } from '../logs/logs.service';
+import { ActivityService } from '../activity/activity.service';
 import { LogAction } from '../common/enums/log-action.enum';
 import { resolveStoredFilePath } from '../common/utils/storage-path.util';
 import { classifyMimeType } from '../common/utils/file-category.util';
@@ -34,7 +34,7 @@ export class FoldersService {
     private readonly foldersRepository: Repository<Folder>,
     @InjectRepository(FileEntity)
     private readonly filesRepository: Repository<FileEntity>,
-    private readonly logsService: LogsService,
+    private readonly activityService: ActivityService,
   ) {}
 
   async findChildren(parentId: number | null): Promise<Folder[]> {
@@ -155,7 +155,7 @@ export class FoldersService {
     });
     const saved = await this.foldersRepository.save(folder);
 
-    await this.logsService.record({
+    await this.activityService.record({
       action: LogAction.CREATE_FOLDER,
       targetName: name,
     });
@@ -209,7 +209,7 @@ export class FoldersService {
       await this.foldersRepository.delete({ id: folderId });
     }
 
-    await this.logsService.record({
+    await this.activityService.record({
       action: LogAction.DELETE_FOLDER,
       targetName: folder.name,
       detail: `${files.length} dosya ve ${descendantIds.length} alt klasor birlikte silindi`,

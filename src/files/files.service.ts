@@ -4,7 +4,7 @@ import { IsNull, Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
 import { FileEntity } from '../entities/file.entity';
-import { LogsService } from '../logs/logs.service';
+import { ActivityService } from '../activity/activity.service';
 import { LogAction } from '../common/enums/log-action.enum';
 import { resolveStoredFilePath } from '../common/utils/storage-path.util';
 
@@ -15,7 +15,7 @@ export class FilesService {
   constructor(
     @InjectRepository(FileEntity)
     private readonly filesRepository: Repository<FileEntity>,
-    private readonly logsService: LogsService,
+    private readonly activityService: ActivityService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -65,7 +65,7 @@ export class FilesService {
     });
     const saved = await this.filesRepository.save(file);
 
-    await this.logsService.record({
+    await this.activityService.record({
       action: LogAction.UPLOAD_FILE,
       targetName: multerFile.originalname,
       detail: `${(multerFile.size / (1024 * 1024)).toFixed(2)} MB`,
@@ -88,7 +88,7 @@ export class FilesService {
 
     await this.filesRepository.remove(file);
 
-    await this.logsService.record({
+    await this.activityService.record({
       action: LogAction.DELETE_FILE,
       targetName: file.originalName,
     });

@@ -4,10 +4,10 @@ import { FileEntity } from '../entities/file.entity';
 import { FilesService } from './files.service';
 import { FilesController } from './files.controller';
 import { QuotaGuard } from './quota.guard';
-import { LogsModule } from '../logs/logs.module';
+import { ActivityModule } from '../activity/activity.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([FileEntity]), LogsModule],
+  imports: [TypeOrmModule.forFeature([FileEntity]), ActivityModule],
   controllers: [FilesController],
   providers: [FilesService, QuotaGuard],
   exports: [FilesService],

@@ -3,8 +3,8 @@
 /node_modules
 /build
 
-# Logs
-logs
+# Logs (sadece kok dizindeki calisma loglari; src/activity ignore edilmez)
+/logs
 *.log
 npm-debug.log*
 pnpm-debug.log*

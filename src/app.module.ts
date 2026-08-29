@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { LogsModule } from './logs/logs.module';
+import { ActivityModule } from './activity/activity.module';
 import { FoldersModule } from './folders/folders.module';
 import { FilesModule } from './files/files.module';
 import { Folder } from './entities/folder.entity';
@@ -31,7 +31,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
       }),
     }),
     AuthModule,
-    LogsModule,
+    ActivityModule,
     FoldersModule,
     FilesModule,
   ],
