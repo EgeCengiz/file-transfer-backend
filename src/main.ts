@@ -13,14 +13,44 @@ async function bootstrap() {
     'http://file.optimalajans.com',
     'http://localhost:5173',
   ];
-  const configuredOrigins = (configService.get<string>('CORS_ORIGIN') ?? '')
-    .split(',')
-    .map((origin) => origin.trim())
-    .filter(Boolean);
+
+  const expandOrigins = (values: string[]): string[] => {
+    const origins = new Set<string>();
+    for (const value of values) {
+      const item = value.trim();
+      if (!item) continue;
+      if (item.startsWith('http://') || item.startsWith('https://')) {
+        origins.add(item);
+        continue;
+      }
+      origins.add(`https://${item}`);
+      origins.add(`http://${item}`);
+    }
+    return [...origins];
+  };
+
+  const configuredOrigins = expandOrigins(
+    (configService.get<string>('CORS_ORIGIN') ?? '').split(','),
+  );
+  const allowedOrigins = new Set([...defaultOrigins, ...configuredOrigins]);
 
   app.enableCors({
-    origin: configuredOrigins.length > 0 ? configuredOrigins : defaultOrigins,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.has(origin)) {
+        callback(null, true);
+        return;
+      }
+      callback(null, false);
+    },
     credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Range'],
+    exposedHeaders: [
+      'Content-Range',
+      'Accept-Ranges',
+      'Content-Length',
+      'Content-Disposition',
+    ],
   });
 
   app.useGlobalPipes(
